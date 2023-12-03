@@ -60,7 +60,7 @@ const SignUpCard = ({ setLogin }) => {
                     }, 3000);
                 } else {
                     dispatch(setSpinner(true));
-                     axios.post('http://localhost:8080/signup',details).then(res => {
+                     axios.post(`${process.env.REACT_APP_BASEURL}/signup`,details).then(res => {
                         dispatch(setSpinner(false));
                             setLogin(true)
                      }).catch(err => {

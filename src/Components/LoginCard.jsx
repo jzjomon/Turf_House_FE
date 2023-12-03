@@ -29,7 +29,7 @@ const LoginCard = ({ setLogin }) => {
         try {
             if (details.email && details.password) {
                 dispatch(setSpinner(true));
-                axios.post('http://localhost:8080/login', details).then(({ data }) => {
+                axios.post(`${process.env.REACT_APP_BASEURL}/login`, details).then(({ data }) => {
                     dispatch(setSpinner(false));
                     dispatch(setUserLogin({ user: data?.data }));
                     localStorage.setItem('token', data?.token);
