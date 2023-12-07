@@ -11,6 +11,7 @@ import { Alert, Toast } from "../Constants/sweetAlert.js";
 import { setUserLogin } from "../toolkit/userSlice.js";
 import { setSpinner } from "../toolkit/spinnerSlice.js";
 import CourtTimeTable from "./CourtTimeTable.jsx";
+import { Input } from "@material-tailwind/react";
 
 const OpenCourt = () => {
   const { id } = useParams();
@@ -23,7 +24,10 @@ const OpenCourt = () => {
   const { user } = useSelector((state) => state.user);
   const [latestDate, setLatestDate] = useState(null);
   const [rate, setRate] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
   const [data, setData] = useState();
+  const [editData, setEditData] = useState();
+  const [showEdit, setShowEdit] = useState(false);
   const [mainTimings, setMainTimings] = useState({
     startDate: "",
     endDate: "",
@@ -32,10 +36,14 @@ const OpenCourt = () => {
   const numRef = useRef();
   const dispatch = useDispatch()
   useEffect(() => {
+    getCourt();
+  }, [id]);
+  const getCourt = () => {
     try {
       dispatch(setSpinner(true))
       instance.get(`/users/getCourt`, { params: { id } }).then(({ data }) => {
         setData(data);
+        setEditData(data);
         dispatch(setSpinner(false))
       }).catch(err => {
         dispatch(setSpinner(false))
@@ -46,7 +54,7 @@ const OpenCourt = () => {
       dispatch(setSpinner(false))
       Alert("Something went wrong !", "error")
     }
-  }, [id]);
+  }
   useEffect(() => {
     getSlotData();
   }, [])
@@ -286,6 +294,30 @@ const OpenCourt = () => {
       Alert("Something went wrong !", "error");
     }
   }
+  const handleEditSubmit = () => {
+    try {
+      if (editData.name && editData.location && editData.about) {
+        dispatch(setSpinner(true));
+        instance.patch('/vendor/editCourt', editData).then((result) => {
+          dispatch(setSpinner(false))
+          setEditOpen(false);
+          getCourt();
+          Toast("Successfully updated", 'success');
+        }).catch((err) => {
+          dispatch(setSpinner(false))
+          setEditOpen(false)
+          Toast("Cannot update the court details", "error");
+        });
+      } else {
+        Alert("Please fill the form", "warning");
+      }
+    } catch (error) {
+      dispatch(setSpinner(false))
+      Alert("Something went wrong", "error")
+    }
+  }
+
+
 
   return (
     <>
@@ -295,12 +327,28 @@ const OpenCourt = () => {
           <img src={`${BASEURL}/images/${data?.image}`} alt="courtimg" className=" rounded-lg shadow-xl shadow-gray-900/50 w-[100%] " />
         </div>
         <div className="md:w-[45%] p-4  ">
-          <div className=" md:flex justify-around border p-10 rounded-lg border-gray-400 shadow-xl shadow-gray-200">
+
+          <div className=" md:flex relative justify-center border p-10 rounded-lg border-gray-400 shadow-xl shadow-gray-200">
+            {user?.role === 2 && user?._id === data?.userId && (
+              <div className="absolute top-2 right-2" >
+                <div className="flex" onMouseOver={() => setShowEdit(true)} onMouseLeave={() => setShowEdit(false)}>
+                  {showEdit && <div className="text-sm flex justify-center items-center">
+                    <button className="border border-orange-700 text-orange-700 hover:bg-orange-700 hover:text-white transition-all rounded-lg  px-3" onClick={() => setEditOpen(true)}>Edit</button>
+                  </div>}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                  </svg>
+                </div>
+              </div>
+            )}
             <div className="flex flex-col text-xl font-bold gap-5">
               <h1>Name : {data?.name}</h1>
               <h2>Location : {data?.location}</h2>
               <h3>About : {data?.about}</h3>
+
             </div>
+
+
             {/* <div className="flex flex-col gap-5 pt-3 md:pt-0">
               <h4>rating : </h4>
               <h1>Owner Name :</h1>
@@ -335,6 +383,14 @@ const OpenCourt = () => {
       <div className="px-3">
         {user?.role === 2 && user?._id === data?.userId && <CourtTimeTable courtId={id} />}
       </div>
+      <AlertModal open={editOpen} onClose={() => setEditOpen(false)}>
+        <div className="flex flex-col gap-6 m-8">
+          <Input label="Name" value={editData?.name} onChange={(e) => setEditData({ ...editData, name: e.target.value })}></Input>
+          <Input label="Location" value={editData?.location} onChange={(e) => setEditData({ ...editData, location: e.target.value })}></Input>
+          <Input label="About" value={editData?.about} onChange={(e) => setEditData({ ...editData, about: e.target.value })}></Input>
+        </div>
+        <Button label="Save" handleClick={() => handleEditSubmit()} />
+      </AlertModal>
       <AlertModal open={open} onClose={() => setOpen(false)}>
         <div className="md:flex justify-between ">
           <h1 className="text-center font-bold ">Court : {data?.name}</h1>

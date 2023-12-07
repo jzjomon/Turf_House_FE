@@ -11,7 +11,7 @@ import { Spinner } from '@material-tailwind/react';
 import { Authorization, LoginOrHome } from './Constants/authorization';
 import GetOtp from './Components/GetOtp';
 import MyBookings from './Components/MyBookings';
-import CourtTimeTable from './Pages/CourtTimeTable';
+import ProfilePage from './Pages/ProfilePage';
 
 function App() {
   const { spinner } = useSelector(state => state.spinner); 
@@ -34,6 +34,7 @@ function App() {
           <Route path='/myCourts/:id' element={<MyCourts />} />
           <Route path='/openCourt/:id' element={<OpenCourt />} />
           <Route path='/myBookings/:id' element={<MyBookings />}/>
+          <Route path='/profile' element={<ProfilePage />}/>
         </Route>
       </Routes>
     </>

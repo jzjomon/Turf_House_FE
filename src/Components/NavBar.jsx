@@ -55,6 +55,8 @@ import { setSearchInput } from "../toolkit/searchSlice";
 //   },
 // ];
 
+const BASEURL = process.env.REACT_APP_BASEURL;
+
 
 
 function ProfileMenu() {
@@ -74,6 +76,8 @@ function ProfileMenu() {
       navigate(`/myCourts/${user._id}`)
     } else if (param === 'myBookings') {
       navigate(`/myBookings/${user._id}`)
+    } else if (param === 'profile') {
+      navigate(`/profile`)
     }
     setIsMenuOpen(false);
   }
@@ -90,7 +94,7 @@ function ProfileMenu() {
             size="sm"
             alt="tania andrew"
             className="border border-orange-500 p-0.5"
-            src="https://www.freeiconspng.com/uploads/profile-icon-9.png"
+            src={user?.img ? `${BASEURL}/images/${user?.img}` : `${BASEURL}/images/profile-icon.png`}
           />
           <span>{user.firstname} {user.lastname}</span>
           <ChevronDownIcon
@@ -118,6 +122,11 @@ function ProfileMenu() {
         <MenuItem onClick={() => closeMenu("myBookings")} className="flex items-center gap-2 rounded">
           <Typography as='span' variant="small" className="font-normal">
             My Bookings
+          </Typography>
+        </MenuItem>
+        <MenuItem onClick={() => closeMenu("profile")} className="flex items-center gap-2 rounded">
+          <Typography as='span' variant="small" className="font-normal">
+            My Profile
           </Typography>
         </MenuItem>
         <MenuItem onClick={() => closeMenu("signOut")} className="flex items-center gap-2 rounded">
