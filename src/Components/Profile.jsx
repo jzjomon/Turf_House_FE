@@ -10,9 +10,10 @@ import { Input } from '@material-tailwind/react'
 
 const BASEURL = process.env.REACT_APP_BASEURL;
 
-const Profile = () => {
+const Profile = ({id}) => {
     const { user } = useSelector(state => state.user);
-    const fullName = `${user?.firstname} ${user?.lastname}`;
+    const [User, setUser] = useState();
+    const fullName = `${User?.firstname} ${User?.lastname}`;
     const [editImg, setEditImg] = useState(false);
     const [img, setImg] = useState();
     const imgRef = useRef();
@@ -26,6 +27,24 @@ const Profile = () => {
         address: "",
     });
     const disptach = useDispatch();
+
+    useEffect(() => {
+        getUser();
+    }, []);
+    const getUser = () => {
+        try {
+            disptach(setSpinner(true))
+            instance.post("/users/userDetails",{id}).then((result) => {
+                setUser(result?.data?.data);
+                disptach(setSpinner(false))
+            }).catch((err) => {
+                disptach(setSpinner(false));
+                Alert("Something went wrong","error");
+            });
+        } catch (error) {
+            Alert('Something went wrong !', 'error');
+        }
+    }
     const handleUpdatePic = () => {
         try {
             disptach(setSpinner(true));
@@ -125,11 +144,11 @@ const Profile = () => {
         <>
             <div className='h-full  bg-gray-50 p-3 w-full flex flex-col gap-6 sm:items-center md:flex-row md:items-start md:justify-center  '>
                 <div className=' sm:w-3/4 md:w-2/6 xl:w-1/6 relative w-full border-gray-400 rounded-lg   border '>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" onClick={() => setEditImg(true)} strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 absolute top-0 right-1 hover:cursor-pointer">
+                   { User?._id === user?._id && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" onClick={() => setEditImg(true)} strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 absolute top-0 right-1 hover:cursor-pointer">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                    </svg>
+                    </svg>}
                     <div className='flex justify-center my-3 '>
-                        <img src={user?.img ? `${BASEURL}/images/${user?.img}` : `${BASEURL}/images/profile-icon.png`} alt="profile" className='w-32 h-32 object-cover shadow-lg shadow-gray-400 rounded-full' />
+                        <img src={User?.img ? `${BASEURL}/images/${User?.img}` : `${BASEURL}/images/profile-icon.png`} alt="profile" className='w-32 h-32 object-cover shadow-lg shadow-gray-400 rounded-full' />
                     </div>
 
                     <div className='text-center flex flex-col gap-3 my-5'>
@@ -140,19 +159,19 @@ const Profile = () => {
                     <div className='flex justify-center my-6 '>
                         <div className='flex flex-col ps-3  gap-3'>
                             <div className='text-lg flex gap-8'><span className="font-semibold ">Full Name</span>  :  <span>{fullName}</span></div>
-                            <div className='text-lg flex gap-8'><span className="font-semibold ">Email</span>   :  <span>{user?.email}</span></div>
-                            <div className='text-lg flex gap-8'><span className="font-semibold ">Phone</span>  :  <span>{user?.phone}</span></div>
-                            <div className='text-lg flex gap-8'><span className="font-semibold ">Designation</span>  :  <span>{user?.designation}</span></div>
-                            <div className='text-lg flex gap-8'><span className="font-semibold ">Address </span>  :  <span>{user?.address}</span></div>
+                            <div className='text-lg flex gap-8'><span className="font-semibold ">Email</span>   :  <span>{User?.email}</span></div>
+                            <div className='text-lg flex gap-8'><span className="font-semibold ">Phone</span>  :  <span>{User?.phone}</span></div>
+                            <div className='text-lg flex gap-8'><span className="font-semibold ">Designation</span>  :  <span>{User?.designation}</span></div>
+                            <div className='text-lg flex gap-8'><span className="font-semibold ">Address </span>  :  <span>{User?.address}</span></div>
                         </div>
                     </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" onClick={() => setEditDetails(true)} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 absolute top-0 right-1 hover:cursor-pointer">
+                    { User?._id === user?._id && <svg xmlns="http://www.w3.org/2000/svg" onClick={() => setEditDetails(true)} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 absolute top-0 right-1 hover:cursor-pointer">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                    </svg>
+                    </svg>}
                 </div>
             </div>
             <AlertModal open={editImg} onClose={() => { setEditImg(false); setImg(null); imgRef.current.value = null; }}>
-                <div >
+                <div > 
                     <input type="file" ref={imgRef} accept='image/*' className='mb-4 text-sm sm:text-lg' onChange={(e) => setImg(e.target.files[0])} />
                     {
                         img ? <>
@@ -164,7 +183,7 @@ const Profile = () => {
                             </div>
                         </> : <>
                             {
-                                user?.img ? <div className='border-t-4 border-gray-400 pt-4 flex justify-center '>
+                                User?.img ? <div className='border-t-4 border-gray-400 pt-4 flex justify-center '>
                                     <button className='border text-xs bg-red-900 text-white rounded p-1' onClick={handleDeletePic}>Delete Pic</button>
                                 </div> : <></>
                             }

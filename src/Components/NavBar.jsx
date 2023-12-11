@@ -34,6 +34,9 @@ import {
 import { setUserLogin } from "../toolkit/userSlice";
 import Search from "./Search";
 import { setSearchInput } from "../toolkit/searchSlice";
+import { Alert, Toast } from "../Constants/sweetAlert";
+import { instance } from "../config/axios";
+import { setSpinner } from "../toolkit/spinnerSlice";
 
 // // profile menu component
 // const profileMenuItems = [
@@ -77,9 +80,30 @@ function ProfileMenu() {
     } else if (param === 'myBookings') {
       navigate(`/myBookings/${user._id}`)
     } else if (param === 'profile') {
-      navigate(`/profile`)
+      navigate(`/profile/${user._id}`)
+    } else if (param === 'admin') {
+      navigate(`/admin`)
+    } else if (param === 'vendor'){
+      requestForVendor()
     }
     setIsMenuOpen(false);
+  }
+
+  const requestForVendor = () => {
+    try {
+      dispatch(setSpinner(true))
+      instance.get('/users/requestVendor').then(({data}) => {
+        dispatch(setUserLogin({user : data?.data}));
+        dispatch(setSpinner(false))
+        Toast("Successfully requested", "success")
+      }).catch((err) => {
+        dispatch(setSpinner(false))
+        Toast("Something went wrong !", "error")
+      });
+    } catch (error) {
+      dispatch(setSpinner(false))
+      Alert("Something went wrong !", "error")
+    }
   }
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
@@ -105,7 +129,15 @@ function ProfileMenu() {
         </Button>
       </MenuHandler>
       <MenuList className="p-1">
-        
+        {
+          user.role === 3 && (
+            <MenuItem onClick={() => closeMenu("admin")} className="flex items-center gap-2 rounded">
+              <Typography as='span' variant="small" className="font-normal">
+                Admin
+              </Typography>
+            </MenuItem>
+          )
+        }
         {user.role === 2 | user.role === 3 && (<><MenuItem onClick={() => closeMenu("registerCourt")} className="flex items-center gap-2 rounded">
           <Typography as='span' variant="small" className="font-normal">
             Register Court
@@ -118,7 +150,7 @@ function ProfileMenu() {
           </MenuItem>
         </>
         )}
-       
+
         <MenuItem onClick={() => closeMenu("myBookings")} className="flex items-center gap-2 rounded">
           <Typography as='span' variant="small" className="font-normal">
             My Bookings
@@ -129,6 +161,15 @@ function ProfileMenu() {
             My Profile
           </Typography>
         </MenuItem>
+        {
+          user.role === 1 && !user.request && (
+            <MenuItem onClick={() => closeMenu("vendor")} className="flex items-center gap-2 rounded">
+              <Typography as='span' variant="small" className="font-normal">
+                Request to Become a Vendor
+              </Typography>
+            </MenuItem>
+          )
+        }
         <MenuItem onClick={() => closeMenu("signOut")} className="flex items-center gap-2 rounded">
           <Typography as='span' variant="small" className="font-normal text-red-600 ">
             Sign Out
@@ -162,7 +203,7 @@ function ProfileMenu() {
           );
         })} */}
       </MenuList>
-    </Menu>
+    </Menu >
   );
 }
 
@@ -252,7 +293,7 @@ const navListItems = [
     icon: CubeTransparentIcon,
   },
   {
-    label: "About Us",
+    label: "About",
     icon: UserGroupIcon,
   },
   // {
@@ -290,7 +331,7 @@ function NavList() {
           </MenuItem>
         </Typography>
       ))}
-        <Search/>
+      <Search />
     </ul>
   );
 }

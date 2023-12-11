@@ -4,12 +4,12 @@ import { NavBar } from '../Components/NavBar';
 import Profile from '../Components/Profile';
 
 const ProfilePage = () => {
-
+  const { id } = useParams();
   return (
     <>
       <div className='flex flex-col w-full h-screen'>
         <NavBar />
-        <Profile />
+        <Profile id={id}/>
       </div>
     </>
   )

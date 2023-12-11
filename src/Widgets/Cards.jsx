@@ -3,10 +3,10 @@ import { instance } from "../config/axios"
 import { CardOne } from "../Components/Card";
 import { Paginate } from "../Components/Paginate";
 import { useDispatch, useSelector } from "react-redux";
-// import { setUserLogin } from "../toolkit/userSlice";
 import { Alert } from "../Constants/sweetAlert";
 import { setSpinner } from "../toolkit/spinnerSlice";
 import { setSearchInput } from "../toolkit/searchSlice";
+import { setUserLogin } from "../toolkit/userSlice";
 
 const Cards = () => {
     const {searchInput} = useSelector(state => state.search);
@@ -17,7 +17,8 @@ const Cards = () => {
         try {
             dispatch(setSpinner(true)) 
             instance.get('/users/getCourts', { params: { page, searchInput} }).then(res => {
-                setCourts(res.data);
+                dispatch(setUserLogin({user : res?.data?.data?.user}));
+                setCourts(res?.data?.data?.result);
                 dispatch(setSpinner(false))
             }).catch((err) => {
                 Alert("Something went wrong !", "error")

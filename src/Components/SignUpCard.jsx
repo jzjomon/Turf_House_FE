@@ -59,6 +59,9 @@ const SignUpCard = ({ setLogin }) => {
                         setRePassAlert(false)
                     }, 3000);
                 } else {
+                    details.firstname = details.firstname.trim()
+                    details.lastname = details.lastname.trim();
+                    details.email = details.email.trim();
                     dispatch(setSpinner(true));
                      axios.post(`${process.env.REACT_APP_BASEURL}/signup`,details).then(res => {
                         dispatch(setSpinner(false));

@@ -1,8 +1,9 @@
 import axios from 'axios';
-const baseURL = process.env.REACT_APP_BASEURL;
+import {BASEURL} from '../Constants/baseUrl'
+import { Toast } from '../Constants/sweetAlert';
 
 export const instance = axios.create({
-    baseURL,
+    baseURL : BASEURL
     // timeout : 5000
 })
 
@@ -15,7 +16,13 @@ instance.interceptors.request.use(config => {
 });
 
 instance.interceptors.response.use((response) => {
-    return response;
-}, ({ response: { data: { auth } } }) => {
-    if (!auth) return Promise.reject(localStorage.clear())
-})
+    return response;  
+}, ({response : {data}}) => {
+    if (data?.blocked) {
+        localStorage.clear()
+        Toast("You have been blocked by the admin","warning")
+    } else if (!data?.auth) {
+        localStorage.clear()
+        Toast("Auto Authentication faild please. sign in", "warning")
+    }
+}) 

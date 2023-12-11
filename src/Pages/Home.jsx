@@ -5,7 +5,6 @@ import Cards from "../Widgets/Cards"
 
 
 const Home = () => {
-
   return (
     <>
        {/* nav */}
